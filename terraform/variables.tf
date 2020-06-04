@@ -14,13 +14,13 @@ variable "cluster_name_random_string" {
 }
 
 variable "admin_cidr_blocks" {
-  type        = "list"
+  type        = list(string)
   description = "Admin CIDR blocks that can access the cluster from outside"
   default     = ["0.0.0.0/0"]
 }
 
 variable "bootstrap_ips" {
-  type        = "list"
+  type        = list(string)
   description = "Control plane ip addresses"
   default     = ["10.1.0.20"]
 }
@@ -42,7 +42,7 @@ variable "ssh_user" {
 
 variable "aws_tags" {
   description = "Add custom tags to all resources"
-  type        = "map"
+  type        = map(string)
   default     = {}
 }
 
@@ -93,7 +93,7 @@ variable "cluster_ami_id" {
 
 variable "cache_packages" {
   description = "Packages to cache in the jumpbox repo"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 
