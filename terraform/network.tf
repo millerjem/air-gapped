@@ -5,7 +5,7 @@ locals {
   public_name       = "${local.vpc_name}-public"
   private_name      = "${local.vpc_name}-public"
   sg_cluster_name   = "${local.cluster_name}-cluster"
-  sg_jumpbox_name   = "${local.instance_jumpbox_name}"
+  sg_jumpbox_name   = "${local.instance_jumpbox_name}-jump"
   public_route_name = "${local.vpc_name}-public-route"
 }
 
@@ -157,4 +157,3 @@ resource "aws_security_group" "cluster" {
     cidr_blocks = ["${aws_subnet.private.cidr_block}"]
   }
 }
-
