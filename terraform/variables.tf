@@ -87,28 +87,8 @@ variable "bootstrap_root_volume_type" {
 }
 
 variable "cluster_ami_id" {
-  description = "AMI to use for control plane and worker instances"
+  description = "AMI to use for bootstrap instance"
   default     = "ami-01ed306a12b7d1c96"
-}
-
-variable "worker_instance_type" {
-  description = "Instance type for worker instances"
-  default     = "m5.xlarge"
-}
-
-variable "worker_instances" {
-  description = "Number of worker instances to launch"
-  default     = 4
-}
-
-variable "worker_root_volume_size" {
-  description = "Worker root volume size"
-  default     = "80"
-}
-
-variable "worker_root_volume_type" {
-  description = "Control Plane root volume type"
-  default     = ""
 }
 
 variable "cache_packages" {

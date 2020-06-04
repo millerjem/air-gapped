@@ -34,15 +34,20 @@ then downloads a set of packages from them to cache. It then creates a local
 repo from those cached packages and serves the out to the private subnet. A
 docker registry is also configured on the `jumpbox`.
 
-In the `private` subnet, the `bootstrap` and `worker` nodes are launched as
+In the `private` subnet, the `bootstrap` node is launched as
 well as an ELB to sit infront of the `bootstrap`. On all the
-`bootstrap` and `worker` instances a `user_data` script is created that
+`bootstrap` instance a `user_data` script is created that
 disables all existing yum repos, and installs a single repo that points to
 the jumpbox. This allows dependancies of the bundled packages in `konvoy` to
 be resolved automatically, but it also requires that the `jumpbox` and the
 cluster nodes use the same version of centos.
 
 ## Known issues and workarounds
+To connect to the bootstrap node, use shh-add to cache the ssh key defined in
+variables.tf
+```bash
+ssh-add -D && ssh-add ./id_mesosphere
+```
 
 The docker registry running on the `jumpbox` will need to be manually seeded
 with the required images.
@@ -66,3 +71,5 @@ docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light apply ag.
 ```bash
 docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light destroy --force
 ```
+
+
