@@ -21,6 +21,10 @@ resource "random_id" "id" {
 locals {
   cluster_name = "${var.cluster_name_random_string ? format("%s-%s", var.cluster_name, random_id.id.hex) : var.cluster_name}"
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d1426f1eeee0f90043c93dbd492b6637daf5dce
   jumpbox_keypair_name    = "${local.cluster_name}-jumpbox"
   instance_jumpbox_name   = "${local.cluster_name}-jumpbox"
   instance_bootstrap_name = "${local.cluster_name}-bootstrap"
@@ -117,10 +121,10 @@ resource "aws_instance" "bootstrap" {
 
   tags = "${merge(
     var.aws_tags,
-      map(
-        "Name", "${local.instance_bootstrap_name}",
-      )
-    )}"
+    map(
+      "Name", "${local.instance_bootstrap_name}",
+    )
+  )}"
 }
 
 output "jumpbox_public_ip" {

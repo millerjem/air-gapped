@@ -34,6 +34,7 @@ then downloads a set of packages from them to cache. It then creates a local
 repo from those cached packages and serves the out to the private subnet. A
 docker registry is also configured on the `jumpbox`.
 
+
 In the `private` subnet, the `bootstrap` node is launched as
 well as an ELB to sit infront of the `bootstrap`. On all the
 `bootstrap` instance a `user_data` script is created that
