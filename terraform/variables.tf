@@ -19,7 +19,7 @@ variable "admin_cidr_blocks" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "control_plane_ips" {
+variable "bootstrap_ips" {
   type        = "list"
   description = "Control plane ip addresses"
   default     = ["10.1.0.20"]
@@ -66,22 +66,22 @@ variable "jumpbox_ami_id" {
   default     = "ami-01ed306a12b7d1c96"
 }
 
-variable "control_plane_instance_type" {
+variable "bootstrap_instance_type" {
   description = "Instance type for control plane instances"
   default     = "m5.xlarge"
 }
 
-variable "control_plane_instances" {
+variable "bootstrap_instances" {
   description = "Number of control plane instances to launch"
   default     = 3
 }
 
-variable "control_plane_root_volume_size" {
+variable "bootstrap_root_volume_size" {
   description = "Control Plane root volume size"
   default     = "80"
 }
 
-variable "control_plane_root_volume_type" {
+variable "bootstrap_root_volume_type" {
   description = "Control Plane root volume type"
   default     = ""
 }

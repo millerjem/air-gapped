@@ -34,9 +34,9 @@ then downloads a set of packages from them to cache. It then creates a local
 repo from those cached packages and serves the out to the private subnet. A
 docker registry is also configured on the `jumpbox`.
 
-In the `private` subnet, the `control_plane` and `worker` nodes are launched as
-well as an ELB to sit infront of the `control_plane`. On all the
-`control_plane` and `worker` instances a `user_data` script is created that
+In the `private` subnet, the `bootstrap` and `worker` nodes are launched as
+well as an ELB to sit infront of the `bootstrap`. On all the
+`bootstrap` and `worker` instances a `user_data` script is created that
 disables all existing yum repos, and installs a single repo that points to
 the jumpbox. This allows dependancies of the bundled packages in `konvoy` to
 be resolved automatically, but it also requires that the `jumpbox` and the

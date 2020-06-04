@@ -101,18 +101,18 @@ data "template_file" "cluster_userdata" {
   }
 }
 
-resource "aws_instance" "control_plane" {
+resource "aws_instance" "bootstrap" {
   ami                    = "${var.cluster_ami_id}"
 
-  instance_type          = "${var.control_plane_instance_type}"
+  instance_type          = "${var.bootstrap_instance_type}"
   key_name               = "${aws_key_pair.jumpbox.key_name}"
   subnet_id              = "${aws_subnet.private.id}"
   vpc_security_group_ids = ["${aws_security_group.cluster.id}"]
   user_data              = "${data.template_file.cluster_userdata.rendered}"
 
   root_block_device {
-    volume_size           = "${var.control_plane_root_volume_size}"
-    volume_type           = "${var.control_plane_root_volume_type}"
+    volume_size           = "${var.bootstrap_root_volume_size}"
+    volume_type           = "${var.bootstrap_root_volume_type}"
     delete_on_termination = true
   }
 
