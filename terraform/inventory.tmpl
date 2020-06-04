@@ -1,0 +1,21 @@
+control-plane:
+  hosts:
+%{ for ip in control_plane_ips ~}
+    ${ip}:
+      ansible_host: ${ip}
+%{ endfor ~}
+node:
+  hosts:
+%{ for ip in worker_ips ~}
+    ${ip}:
+      ansible_host: ${ip}
+      node_pool: worker
+%{ endfor ~}
+all:
+  vars:
+    ansible_port: 22
+    ansible_ssh_private_key_file: "${abspath(ssh_private_key_file)}"
+    ansible_user: "${ssh_user}"
+    control_plane_endpoint: "${control_plane_endpoint}"
+    order: sorted
+    version: v1beta1

@@ -1,0 +1,12 @@
+#!/bin/sh
+sed -i 's/=enforcing/=disabled/' /etc/sysconfig/selinux
+setenforce 0
+mkdir /etc/yum.repos.d/bak
+mv /etc/yum.repos.d/* /etc/yum.repos.d/bak
+cat <<"EOF" > /etc/yum.repos.d/jumpbox.repo
+[jumpbox]
+name=JumpBox Cache
+baseurl=${repo_url}
+gpgcheck=0
+enabled=1
+EOF

@@ -1,0 +1,47 @@
+#!/bin/bash
+sed -i 's/=enforcing/=disabled/' /etc/sysconfig/selinux
+setenforce 0
+mkdir -p /var/www/html
+mkdir -p /etc/registry
+cat <<"EOF" > /etc/yum.repos.d/libnvidia-container.repo
+[libnvidia-container]
+baseurl = https://nvidia.github.io/libnvidia-container/centos7/x86_64
+enabled = 1
+gpgcheck = 0
+gpgkey = https://nvidia.github.io/libnvidia-container/gpgkey
+name = libnvidia-container Repository
+repo_gpgcheck = 1
+sslcacert = /etc/pki/tls/certs/ca-bundle.crt
+sslverify = 1
+EOF
+cat <<"EOF" > /etc/yum.repos.d/nvidia-container-runtime.repo
+[nvidia-container-runtime]
+baseurl = https://nvidia.github.io/nvidia-container-runtime/centos7/x86_64
+enabled = 1
+gpgcheck = 0
+gpgkey = https://nvidia.github.io/nvidia-container-runtime/gpgkey
+name = nvidia-container-runtime Repository
+repo_gpgcheck = 1
+sslcacert = /etc/pki/tls/certs/ca-bundle.crt
+sslverify = 1
+EOF
+cat <<"EOF" > /etc/yum.repos.d/docker.repo
+[docker]
+baseurl = https://download.docker.com/linux/centos/7/x86_64/stable/
+gpgcheck = 1
+gpgkey = https://download.docker.com/linux/centos/gpg
+name = Docker Repository
+EOF
+LOCAL_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+openssl req -x509 -newkey rsa:4096 -keyout /etc/registry/key.pem -out /etc/registry/cert.pem -days 30 -nodes -sha256 -subj "/C=US/ST=Oregon/L=Portland/O=Company Name/OU=Org/CN=www.example.com" -reqexts SAN -extensions SAN -config <(cat /etc/pki/tls/openssl.cnf && printf "\n[SAN]\nsubjectAltName=IP:$${LOCAL_IP}")
+yum install -y bzip2 createrepo yum-utils https://packages.d2iq.com/konvoy/rpm/stable/centos/7/konvoy-repo.rpm
+yumdownloader ${cache_packages} --destdir=/var/www/html --resolve
+createrepo --update /var/www/html
+curl -fsSL https://get.docker.com -o /tmp/docker.sh
+/bin/sh /tmp/docker.sh
+systemctl enable docker
+systemctl start docker
+usermod -aG docker centos
+docker run --entrypoint htpasswd registry:2 -Bbn "${registry_user}" "${registry_pass}" > /etc/registry/htpasswd
+docker run -d --restart always -p ${registry_port}:${registry_port} -v /etc/registry:/etc/registry -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e "REGISTRY_AUTH_HTPASSWD_PATH=/etc/registry/htpasswd" -e "REGISTRY_HTTP_TLS_CERTIFICATE=/etc/registry/cert.pem" -e "REGISTRY_HTTP_TLS_KEY=/etc/registry/key.pem" -e "REGISTRY_HTTP_ADDR=0.0.0.0:${registry_port}" --name registry registry:2
+docker run -d --restart always -p ${repo_port}:80 --name repo -v /var/www/html:/usr/share/nginx/html nginx
