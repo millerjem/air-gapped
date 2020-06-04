@@ -5,7 +5,7 @@ locals {
   public_name       = "${local.vpc_name}-public"
   private_name      = "${local.vpc_name}-public"
   sg_cluster_name   = "${local.cluster_name}-cluster"
-  sg_jumpbox_name   = "${local.instance_jumpbox_name}-jump"
+  sg_jumpbox_name   = "${local.cluster_name}-jump"
   public_route_name = "${local.vpc_name}-public-route"
 }
 
