@@ -21,6 +21,7 @@ resource "random_id" "id" {
 locals {
   cluster_name = "${var.cluster_name_random_string ? format("%s-%s", var.cluster_name, random_id.id.hex) : var.cluster_name}"
 
+
   jumpbox_keypair_name    = "${local.cluster_name}-jumpbox"
   instance_jumpbox_name   = "${local.cluster_name}-jumpbox"
   instance_bootstrap_name = "${local.cluster_name}-bootstrap"
@@ -132,5 +133,5 @@ output "cluster_name" {
 }
 
 output "ssh_command" {
-  value = "ssh -o 'ProxyCommand ssh -W %h:%p -i ${var.ssh_private_key_file} ${var.ssh_user}@${aws_instance.jumpbox.public_ip}' -i ${var.ssh_private_key_file} ${var.ssh_user}@${aws_instance.bootstrap.private_ip}"
+  value = "ssh -i ${var.ssh_private_key_file} -J ${var.ssh_user}@${aws_instance.jumpbox.public_ip} ${var.ssh_user}@${aws_instance.bootstrap.private_ip}"
 }

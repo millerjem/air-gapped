@@ -87,7 +87,7 @@ variable "bootstrap_root_volume_type" {
 }
 
 variable "cluster_ami_id" {
-  description = "AMI to use for bootstrap instances"
+  description = "AMI to use for bootstrap instance"
   default     = "ami-01ed306a12b7d1c96"
 }
 
