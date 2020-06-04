@@ -14,13 +14,13 @@ variable "cluster_name_random_string" {
 }
 
 variable "admin_cidr_blocks" {
-  type        = "list"
+  type        = list(string)
   description = "Admin CIDR blocks that can access the cluster from outside"
   default     = ["0.0.0.0/0"]
 }
 
 variable "bootstrap_ips" {
-  type        = "list"
+  type        = list(string)
   description = "Control plane ip addresses"
   default     = ["10.1.0.20"]
 }
@@ -42,7 +42,7 @@ variable "ssh_user" {
 
 variable "aws_tags" {
   description = "Add custom tags to all resources"
-  type        = "map"
+  type        = map(string)
   default     = {}
 }
 
@@ -87,33 +87,13 @@ variable "bootstrap_root_volume_type" {
 }
 
 variable "cluster_ami_id" {
-  description = "AMI to use for control plane and worker instances"
+  description = "AMI to use for bootstrap instances"
   default     = "ami-01ed306a12b7d1c96"
-}
-
-variable "worker_instance_type" {
-  description = "Instance type for worker instances"
-  default     = "m5.xlarge"
-}
-
-variable "worker_instances" {
-  description = "Number of worker instances to launch"
-  default     = 4
-}
-
-variable "worker_root_volume_size" {
-  description = "Worker root volume size"
-  default     = "80"
-}
-
-variable "worker_root_volume_type" {
-  description = "Control Plane root volume type"
-  default     = ""
 }
 
 variable "cache_packages" {
   description = "Packages to cache in the jumpbox repo"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 

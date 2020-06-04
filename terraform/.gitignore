@@ -1,0 +1,5 @@
+.terraform
+id_mesospher*
+*.tfplan
+*.tfstate
+*.tfstate.backup
