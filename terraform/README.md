@@ -9,7 +9,7 @@ An ssh keypair needs to be generated. By default the
 `var.ssh_private_key_file` and `var.ssh_public_key_file` are set to
 `./id_mesosphere` and `./id_mesosphere.pub` respectivly. To customize edit variables.tf.
 
-## Applying with `cloud-cleaner` tags
+## Applying with cloud-cleaner tags
 
 Additional `aws_tags` can be specified on apply to play nicely with
 `cloud-cleaner`:
