@@ -15,7 +15,7 @@ Additional `aws_tags` can be specified on apply to play nicely with
 `cloud-cleaner`:
 
 ```bash
-  terraform apply -var 'aws_tags={"owner":"my_name","expiration"="10h"}' ag.tfplan
+  terraform apply -var 'aws_tags={"owner"="my_name","expiration"="10h"}' ag.tfplan
 ```
 
 ## Setup
