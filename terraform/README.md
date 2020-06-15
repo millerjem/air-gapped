@@ -34,11 +34,12 @@ then downloads a set of packages from them to cache. It then creates a local
 repo from those cached packages and serves the out to the private subnet. A
 docker registry is also configured on the `jumpbox`.
 
+
 In the `private` subnet, the `bootstrap` node is launched as
 well as an ELB to sit infront of the `bootstrap`. On all the
 `bootstrap` instance a `user_data` script is created that
 disables all existing yum repos, and installs a single repo that points to
-the jumpbox. This allows dependancies of the bundled packages in `konvoy` to
+the jumpbox. This allows dependencies of the bundled packages in `konvoy` to
 be resolved automatically, but it also requires that the `jumpbox` and the
 cluster nodes use the same version of centos.
 
@@ -53,21 +54,55 @@ The docker registry running on the `jumpbox` will need to be manually seeded
 with the required images.
 
 ## Initialize terraform
+
 ```bash
 docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light init
 ```
 
 ## Generate plan
+
+You can run build the simple plan:
+
 ```bash
 docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light plan -out=ag.tfplan
 ```
 
+-or-
+
+Add some extra vars.
+
+```bash
+docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light plan -var 'aws_tags={"owner"="my_name","expiration"="10h"}' -var 'cluster_name="air_gap_test"' -out=ag.tfplan
+```
+
+Note: This will ask for your ~/.aws/credential sets if you don't have them in you ENV. 
+The environment variables must be in the format `TF_VAR_name` and this will be checked last for a value
+
+You could also modify the `main.tf` with an explicit aws shared credentials file.
+
+```json
+provider "aws" {
+  shared_credentials_file = "~/.aws/credentials"
+  profile                 = "customprofile"
+}
+```
+
 ## Apply plan
+
 ```bash
 docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light apply ag.tfplan
 ```
 
+## Connect to the AirGap Machine
+
+* `54.185.129.50` is the External IP of the Public Node
+* `10.0.0.233` is the Internal IP of the Private(AirGap) Node
+
+Example: 
+`ssh -o 'ProxyCommand ssh -W %h:%p -i id_mesosphere centos@54.185.129.50' -i id_mesosphere centos@10.0.0.233`
+
 ## Destroy cluster
+
 ```bash
 docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light destroy --force
 ```
