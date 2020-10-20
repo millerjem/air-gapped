@@ -1,135 +1,108 @@
-variable "aws_access_key_id" {}
-variable "aws_secret_key" {}
-variable "aws_session_token" {}
-
-provider "aws" {
-  version = "~> 2.4"
-  region  = "${var.aws_region}"
-  access_key = "${var.aws_access_key_id}"
-  secret_key = "${var.aws_secret_key}"
-  token = "${var.aws_session_token}"
-}
-
-provider "random" {
-  version = "~> 2.1"
-}
-
-resource "random_id" "id" {
-  byte_length = 2
-}
-
+# Locals
 locals {
-  cluster_name = "${var.cluster_name_random_string ? format("%s-%s", var.cluster_name, random_id.id.hex) : var.cluster_name}"
-
-  jumpbox_keypair_name  = "${local.cluster_name}-jumpbox"
-  instance_jumpbox_name = "${local.cluster_name}-jumpbox"
-  instance_bootstrap_name = "${local.cluster_name}-bootstrap"
-
-  repo_port     = 80
-  registry_port = 5000
-
-  cache_packages = "${length(var.cache_packages) != 0 ? var.cache_packages : [
-    "chrony",
-    "nvme-cli",
-    "yum-plugin-versionlock",
-    "libseccomp",
-    "containerd.io-${var.containerd_version}",
-    "container-selinux",
-    "nfs-utils",
-    "kubectl-${var.kubernetes_version}-0",
-    "kubelet-${var.kubernetes_version}-0",
-    "kubernetes-cni",
-    "kubeadm-${var.kubernetes_version}-0",
-    "cri-tools",
-    "nvidia-container-runtime",
-    "libnvidia-container-tools",
-    "libnvidia-container1",
-    "nvidia-container-toolkit",
-  ]}"
+  az = "${format("%s%s", var.region_id, "a")}"
 }
 
-resource "aws_key_pair" "jumpbox" {
-  key_name   = "${local.jumpbox_keypair_name}"
-  public_key = "${file(var.ssh_public_key_file)}"
+# Provider
+provider "aws" {
+  profile = "${var.profile_id}"
+  region  = "${var.region_id}"
 }
 
-resource "random_password" "registry_pass" {
-  length = 24
-}
+# Vpc
+resource "aws_vpc" "airgap_vpc" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
 
-data "template_file" "jumpbox_userdata" {
-  template = "${file("${path.module}/jumpbox_user_data.tmpl")}"
-
-  vars = {
-    cache_packages = "${join(" ", local.cache_packages)}"
-    registry_port  = "${local.registry_port}"
-    registry_pass  = "${random_password.registry_pass.result}"
-    registry_user  = "${var.registry_user}"
-    repo_port      = "${local.repo_port}"
+  tags = {
+    Name = "${var.cluster_id}-vpc"
   }
 }
 
-resource "aws_instance" "jumpbox" {
-  ami                         = "${var.jumpbox_ami_id}"
-  associate_public_ip_address = true
-  instance_type               = "${var.jumpbox_instance_type}"
-  key_name                    = "${aws_key_pair.jumpbox.key_name}"
-  subnet_id                   = "${aws_subnet.public.id}"
-  vpc_security_group_ids      = ["${aws_security_group.jumpbox.id}"]
-  user_data                   = "${data.template_file.jumpbox_userdata.rendered}"
+# Public subnet
+resource "aws_subnet" "public" {
+  vpc_id = "${aws_vpc.airgap_vpc.id}"
+  cidr_block = "10.0.0.0/24"
+  availability_zone = "${local.az}"
 
-  root_block_device {
-    volume_size           = "${var.jumpbox_root_volume_size}"
-    volume_type           = "${var.jumpbox_root_volume_type}"
-    delete_on_termination = true
-  }
-
-  tags = "${merge(
-    var.aws_tags,
-    map(
-      "Name", "${local.instance_jumpbox_name}",
-    )
-  )}"
-}
-
-data "template_file" "cluster_userdata" {
-  template = "${file("${path.module}/cluster_user_data.tmpl")}"
-
-  vars = {
-    repo_url = "http://${aws_instance.jumpbox.private_ip}:${local.repo_port}/"
+  tags = {
+    Name = "airgap-public-subnet"
   }
 }
 
-resource "aws_instance" "bootstrap" {
-  ami                    = "${var.cluster_ami_id}"
+# Igw
+resource "aws_internet_gateway" "airgap_vpc_igw" {
+  vpc_id = "${aws_vpc.airgap_vpc.id}"
 
-  instance_type          = "${var.bootstrap_instance_type}"
-  key_name               = "${aws_key_pair.jumpbox.key_name}"
-  subnet_id              = "${aws_subnet.private.id}"
-  vpc_security_group_ids = ["${aws_security_group.cluster.id}"]
-  user_data              = "${data.template_file.cluster_userdata.rendered}"
-
-  root_block_device {
-    volume_size           = "${var.bootstrap_root_volume_size}"
-    volume_type           = "${var.bootstrap_root_volume_type}"
-    delete_on_termination = true
+  tags = {
+    Name = "airgap-igw"
   }
-
-  tags = "${merge(
-    var.aws_tags,
-      map(
-        "Name", "${local.instance_bootstrap_name}",
-      )
-    )}"
-}
-output "jumpbox_public_ip" {
-  value = "${aws_instance.jumpbox.public_ip}"
 }
 
-output "cluster_name" {
-  value = "${local.cluster_name}"
+# Public route table
+resource "aws_route_table" "airgap_vpc_region_public" {
+    vpc_id = "${aws_vpc.airgap_vpc.id}"
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = "${aws_internet_gateway.airgap_vpc_igw.id}"
+    }
+
+    tags = {
+        Name = "airgap-public-rt"
+    }
 }
 
-output "ssh_command" {
-  value = "ssh -i ${var.ssh_private_key_file} -J ${var.ssh_user}@${aws_instance.jumpbox.public_ip} ${var.ssh_user}@${aws_instance.bootstrap.private_ip}"
+# Public route table associations
+resource "aws_route_table_association" "airgap_vpc_region_public" {
+    subnet_id = "${aws_subnet.public.id}"
+    route_table_id = "${aws_route_table.airgap_vpc_region_public.id}"
 }
+
+# Private subnet
+resource "aws_subnet" "private" {
+  vpc_id     = "${aws_vpc.airgap_vpc.id}"
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "${local.az}"
+
+  tags = {
+    Name = "airgap-private-subnet"
+  }
+}
+
+# Private routing table
+resource "aws_route_table" "airgap_vpc_region_private" {
+    vpc_id = "${aws_vpc.airgap_vpc.id}"
+
+    tags = {
+        Name = "airgap-private-rt"
+    }
+}
+
+# Private routing table association
+resource "aws_route_table_association" "airgap_vpc_region_private" {
+    subnet_id = "${aws_subnet.private.id}"
+    route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
+}
+
+# Output
+output "connection_details" {
+  value = <<EOF
+
+    Use the following to connect to the bootstrap node and enjoy the ride...
+
+    ssh -J ${var.image_username}@${aws_instance.staging_instance.public_ip} ${var.image_username}@${aws_instance.bootstrap_instance.private_ip}
+
+  EOF
+}
+
+output "public_ip" {
+  description = "List of public IP addresses assigned to the instances, if applicable"
+  value       = "${aws_instance.staging_instance.*.public_ip}"
+}
+
+output "private_ip" {
+  description = "List of private IP addresses assigned to the instances, if applicable"
+  value       = "${aws_instance.bootstrap_instance.*.private_ip}"
+}
+
