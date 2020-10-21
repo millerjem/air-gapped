@@ -91,7 +91,7 @@ resource "null_resource" "preflight" {
       "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /home/centos/bootstrap ${local.user_at_system}:/home/centos/bootstrap",
       "curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip",
       "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null awscliv2.zip ${local.user_at_system}:.",
-      "curl -OL https://downloads.mesosphere.io/konvoy/konvoy_air_gapped_v1.6.0-rc.2_linux.tar.bz2",
+      "curl -OL ${var.dkp_archive}",
       "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/centos/konvoy_air_gapped_v1.6.0-rc.2_linux.tar.bz2 ${local.user_at_system}:/home/centos/konvoy_air_gapped_v1.6.0-rc.2_linux.tar.bz2",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} chmod 600 ~/.ssh/id_rsa",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo yum install ./bootstrap/*.rpm -y",

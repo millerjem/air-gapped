@@ -13,6 +13,9 @@ variable "region_id" {
     default     = "us-east-1"
 }
 
+# DKP archive
+variable "dkp_archive" {}
+
 # Cluster UUID
 resource "random_string" "random" {
     length  = 4

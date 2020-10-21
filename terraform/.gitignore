@@ -1,5 +1,8 @@
 .terraform
+terraform.tfplan
 terraform.state
 terraform.state.backup
 id_mesosphere
 id_mesosphere.pub
+*.pem
+*.pub
