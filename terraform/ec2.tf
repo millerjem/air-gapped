@@ -20,7 +20,7 @@ resource "aws_instance" "staging_instance" {
   root_block_device = [
     {
       volume_type = "gp2"
-      volume_size = 80
+      volume_size = 500
     },
   ]
 
@@ -61,7 +61,7 @@ resource "aws_instance" "bootstrap_instance" {
   root_block_device = [
     {
       volume_type = "gp2"
-      volume_size = 80
+      volume_size = 1000
     },
   ]
 
@@ -92,10 +92,10 @@ resource "null_resource" "preflight" {
       "curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip",
       "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null awscliv2.zip ${local.user_at_system}:.",
       "curl -OL ${var.dkp_archive}",
-      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/centos/konvoy_air_gapped_v1.6.0-rc.2_linux.tar.bz2 ${local.user_at_system}:/home/centos/konvoy_air_gapped_v1.6.0-rc.2_linux.tar.bz2",
+      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/centos/${var.dkp_archive} ${local.user_at_system}:/home/centos/${var.dkp_archive}",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} chmod 600 ~/.ssh/id_rsa",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo yum install ./bootstrap/*.rpm -y",
-      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} tar -xvf konvoy_air_gapped_v1.6.0-rc.2_linux.tar.bz2",
+      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} tar -xvf ${var.dkp_archive}",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo systemctl enable --now docker",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo usermod -aG docker centos",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} unzip awscliv2.zip",
