@@ -35,7 +35,8 @@ variable "cluster_id" {
 variable "image_id" {
     description = "Amazon AWS AMI"
     # Default ami is based on v1.6.0-rc.2
-    default     = "ami-0affd4508a5d2481b"
+    # default     = "ami-0affd4508a5d2481b"
+    default     = "ami-d5bf2caa"
 }
 
 # ec2.tf
@@ -70,5 +71,5 @@ variable "owner" {
 variable "expiration" {
     description = "Expiration time in hours"
     # Comment
-    default     = "6h"
+    default     = "48h"
 }

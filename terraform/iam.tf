@@ -1,11 +1,11 @@
 # IAM
 resource "aws_iam_role" "ec2_ag_access_role" {
-  name               = "ag-role"
+  name_prefix        = "ag-role-"
   assume_role_policy = "${file("assumerolepolicy.json")}"
 }
 
 resource "aws_iam_policy" "policy" {
-  name        = "konvoy-ag-policy"
+  name_prefix = "konvoy-ag-policy-"
   policy      = "${file("policy.json")}"
 }
 
@@ -16,6 +16,6 @@ resource "aws_iam_policy_attachment" "ag-attach" {
 }
 
 resource "aws_iam_instance_profile" "ag_profile" {
-  name  = "ag_profile"
+  name_prefix  = "ag_profile-"
   role  = "${aws_iam_role.ec2_ag_access_role.name}"
 }

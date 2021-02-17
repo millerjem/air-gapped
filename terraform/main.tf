@@ -70,6 +70,17 @@ resource "aws_subnet" "private" {
   }
 }
 
+# Private subnet
+#resource "aws_subnet" "private-lb" {
+#  vpc_id     = "${aws_vpc.airgap_vpc.id}"
+#  cidr_block = "10.0.3.0/24"
+#  availability_zone = "${local.az}"
+
+#  tags = {
+#    Name = "airgap-private-lb-subnet"
+#  }
+#}
+
 # Private routing table
 resource "aws_route_table" "airgap_vpc_region_private" {
     vpc_id = "${aws_vpc.airgap_vpc.id}"
@@ -84,6 +95,12 @@ resource "aws_route_table_association" "airgap_vpc_region_private" {
     subnet_id = "${aws_subnet.private.id}"
     route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
 }
+
+# Private routing table association
+#resource "aws_route_table_association" "airgap_vpc_region_private-lb" {
+#    subnet_id = "${aws_subnet.private-lb.id}"
+#    route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
+#}
 
 # Output
 output "connection_details" {
