@@ -7,7 +7,7 @@ air-gapped installation.
 
 An ssh keypair needs to be generated. By default the
 `var.ssh_private_key_file` and `var.ssh_public_key_file` are set to
-`./id_mesosphere` and `./id_mesosphere.pub` respectivly. To customize edit variables.tf.
+`./airgap-ssh.pem` and `./airgap-ssh.pub` respectivly. To customize edit variables.tf.
 
 ## Applying with cloud-cleaner tags
 
@@ -46,7 +46,7 @@ cluster nodes use the same version of centos.
 To connect to the bootstrap node, use shh-add to cache the ssh key defined in
 variables.tf
 ```bash
-ssh-add -D && ssh-add ./id_mesosphere
+ssh-add -D && ssh-add ./airgap-ssh.pem
 ```
 
 The docker registry running on the `jumpbox` will need to be manually seeded
@@ -54,22 +54,22 @@ with the required images.
 
 ## Initialize terraform
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light init
+docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 init
 ```
 
 ## Generate plan
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light plan -out=ag.tfplan
+docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 plan -out=ag.tfplan
 ```
 
 ## Apply plan
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light apply ag.tfplan
+docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 apply ag.tfplan
 ```
 
 ## Destroy cluster
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf hashicorp/terraform:light destroy --force
+docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 destroy --force
 ```
 
 
