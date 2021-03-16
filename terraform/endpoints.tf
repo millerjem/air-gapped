@@ -7,7 +7,7 @@ resource "aws_vpc_endpoint" "ec2" {
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.allow_ssh.id}",
+    "${aws_security_group.allow_all.id}",
   ]
 
   subnet_ids = [
@@ -24,7 +24,7 @@ resource "aws_vpc_endpoint" "elb" {
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.allow_ssh.id}",
+    "${aws_security_group.allow_all.id}",
   ]
 
   subnet_ids = [
@@ -41,7 +41,7 @@ resource "aws_vpc_endpoint" "sts" {
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.allow_ssh.id}",
+    "${aws_security_group.allow_all.id}",
   ]
 
   subnet_ids = [
