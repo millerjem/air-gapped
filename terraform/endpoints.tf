@@ -17,6 +17,21 @@ resource "aws_vpc_endpoint" "ec2" {
   private_dns_enabled = true
 }
 
+resource "aws_route53_zone" "internal" {
+  name         = "us-iso-east-1.c2s.ic.gov."
+  vpc {
+    vpc_id = "${aws_vpc.airgap_vpc.id}"
+  }
+}
+
+resource "aws_route53_record" "ec2_record" {
+  zone_id = "${aws_route53_zone.internal.zone_id}"
+  name    = "ec2.${aws_route53_zone.internal.name}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = ["${lookup(aws_vpc_endpoint.ec2.dns_entry[0], "dns_name")}"]
+}
+
 # ELB endpoint
 resource "aws_vpc_endpoint" "elb" {
   vpc_id            = "${aws_vpc.airgap_vpc.id}"
