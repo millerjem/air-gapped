@@ -1,6 +1,6 @@
 # Air-Gapped Terraform Config
 
-This will deploy a set of servers and a bation "jump-box" to simulate an
+This will deploy a set of servers and a bastion "jump-box" to simulate an
 air-gapped installation. 
 
 ## Requirements
@@ -28,23 +28,21 @@ also be sent to the public subnet, and only ssh connections are allowd from
 the `public` subnet. This in effect creates a set of nodes that are completly
 decoupled from the internet.
 
-In the `public` subnet a `jumpbox` bastion is launched in the public subnet. A
-`user_data` script is created for the `jumpbox` which configures yum repos and
-then downloads a set of packages from them to cache. It then creates a local
-repo from those cached packages and serves the out to the private subnet. A
-docker registry is also configured on the `jumpbox`.
+In the public subnet, a jumpbox or bastion is created and Terraform remotely 
+executes to configures bastion system and downloads a set of packages. 
+The Terraform automation is acapable of create a local container registry
+fto serve the private subnet.
 
-In the `private` subnet, the `bootstrap` node is launched as
-well as an ELB to sit infront of the `bootstrap`. On all the
-`bootstrap` instance a `user_data` script is created that
-disables all existing yum repos, and installs a single repo that points to
-the jumpbox. This allows dependancies of the bundled packages in `konvoy` to
-be resolved automatically, but it also requires that the `jumpbox` and the
-cluster nodes use the same version of centos.
+In the private subnet, a cluster bootstrap node is created and disables all
+existing yum repos, and installs a single repo that points to the jumpbox. 
+This allows dependancies of the bundled packages in konvoy to be resolved 
+automatically, but it also requires that the jumpbox and the cluster nodes
+use the same version of centos.
 
 ## Known issues and workarounds
 To connect to the bootstrap node, use shh-add to cache the ssh key defined in
 variables.tf
+
 ```bash
 ssh-add -D && ssh-add ./airgap-ssh.pem
 ```
@@ -52,24 +50,27 @@ ssh-add -D && ssh-add ./airgap-ssh.pem
 The docker registry running on the `jumpbox` will need to be manually seeded
 with the required images.
 
+This requires Terraform 0.11.x
+
 ## Initialize terraform
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 init
+export TF_VAR_profile_id="${AWS_PROFILE}"
+export TF_VAR_region_id="${AWS_DEFAULT_REGION}"
+                          
+terrafrom init
 ```
 
 ## Generate plan
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 plan -out=ag.tfplan
+terraform plan -out=ag.tfplan
 ```
 
 ## Apply plan
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 apply ag.tfplan
+terraform apply ag.tfplan
 ```
 
 ## Destroy cluster
 ```bash
-docker run -i -t -v $(pwd):/tf --workdir=/tf -v ~/.aws/credentials:/root/.aws/credentials -e AWS_PROFILE=XXX_Mesosphere-PowerUser hashicorp/terraform:0.11.14 destroy --force
+terraform destroy --force
 ```
-
-

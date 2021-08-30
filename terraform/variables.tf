@@ -1,16 +1,12 @@
 
-# Provider id based on Mesosphere account information
+# Profile ID based on AWS account information
 variable "profile_id" {
-    description = ""
-    # Default region is 110465657741_Mesosphere-PowerUser
-    default     = "110465657741_Mesosphere-PowerUser"
+    type = string
 }
 
-# AWS Region id
+# AWS Region
 variable "region_id" {
-    description = ""
-    # Default region is us-east-1
-    default     = "us-east-1"
+    type = string
 }
 
 # DKP archive
@@ -24,25 +20,23 @@ resource "random_string" "random" {
     upper   = false
 }
 
-# Cluster id
+# Cluster ID
 variable "cluster_id" {
-    description = ""
-    # Default region is airgap-????
     default     = "airgap"
 }
 
 # ec2.tf
 variable "image_id" {
     description = "Amazon AWS AMI"
-    # Default ami is based on v1.6.0-rc.2
-    # default     = "ami-0affd4508a5d2481b"
-    default     = "ami-d5bf2caa"
+    # Default ami is based on v1.8.2
+    # default     = "ami-00e87074e52e6c9f9"
+    default     = "ami-00e87074e52e6c9f9"
 }
 
 # ec2.tf
 variable "image_username" {
     description = "Amazon AWS AMI username"
-    # Default ami is based on v1.6.0-rc.2
+    # Default ami is based on v1.8.2
     default     = "centos"
 }
 
@@ -53,23 +47,19 @@ variable "ec2_instance_type" {
     default     = "m5.xlarge"
 }
 
-# Ssh keyname
+# SSH keyname
 variable "ssh_key_name" {
-    description = ""
-    # Comment
     default     = "airgap"
 }
 
 # Cluster owner
 variable "owner" {
     description = "Owner of the cluster"
-    # Comment
     default      = "john.miller@d2iq.com"
 }
 
 # Cluster expiration
 variable "expiration" {
-    description = "Expiration time in hours"
-    # Comment
+    description = "Expiration time in hours only required to D2iQ environments"
     default     = "48h"
 }
