@@ -36,7 +36,11 @@ variable "image_id" {
     description = "Amazon AWS AMI"
     # Default ami is based on v1.6.0-rc.2
     # default     = "ami-0affd4508a5d2481b"
-    default     = "ami-d5bf2caa"
+    # default     = "ami-d5bf2caa"
+    # RHEL 7.9
+    # default     = "ami-0e9c29b4bc383c674"
+    # RHEL 7.6
+    default     = "ami-0dd8227ce425069f9"
 }
 
 # ec2.tf
