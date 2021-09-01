@@ -5,6 +5,7 @@ locals {
 
 # Provider
 provider "aws" {
+  version = "v2.70.0"
   profile = "${var.profile_id}"
   region  = "${var.region_id}"
 }

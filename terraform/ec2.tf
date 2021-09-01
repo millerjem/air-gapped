@@ -34,11 +34,11 @@ resource "aws_instance" "staging_instance" {
     host        = "${aws_instance.staging_instance.public_ip}"
     type        = "ssh"
     user        = "${var.image_username}"
-    private_key = "${file("${var.ssh_key_name}.pem")}"
+    private_key = "${file("${var.ssh_key_name}")}"
   }
   
   provisioner "file" {
-    source      = "${var.ssh_key_name}.pem"
+    source      = "${var.ssh_key_name}"
     destination = "~/.ssh/id_rsa"
   }
 
@@ -77,6 +77,54 @@ locals {
   "user_at_system" = "${format("%s@%s", var.image_username, aws_instance.bootstrap_instance.private_ip)}"
 }
 
+resource "null_resource" "preflight_volumes_bootstrap" {
+  
+  connection {
+    host = "${aws_instance.bootstrap_instance.private_ip}"
+    type = "ssh"
+    user = "${var.image_username}"
+    bastion_host = "${aws_instance.staging_instance.public_ip}"
+    bastion_user = "${var.image_username}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo growpart /dev/nvme0n1 2",
+      "sudo pvresize /dev/nvme0n1p2",
+      "sudo lvextend -L+10G /dev/VolGroup00/rootVol",
+      "sudo lvextend -L+500G /dev/VolGroup00/varVol",
+      "sudo lvextend -L+200G /dev/VolGroup00/homeVol",
+      "sudo lvextend -L+100G /dev/VolGroup00/logVol",
+      "sudo resize2fs /dev/VolGroup00/rootVol",
+      "sudo resize2fs /dev/VolGroup00/varVol",
+      "sudo resize2fs /dev/VolGroup00/homeVol"
+    ]
+  }
+}
+
+resource "null_resource" "preflight_volumes_bastion" {
+  
+  connection {
+    host = "${aws_instance.staging_instance.public_ip}"
+    type = "ssh"
+    user = "${var.image_username}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo growpart /dev/nvme0n1 2",
+      "sudo pvresize /dev/nvme0n1p2",
+      "sudo lvextend -L+10G /dev/VolGroup00/rootVol",
+      "sudo lvextend -L+500G /dev/VolGroup00/varVol",
+      "sudo lvextend -L+200G /dev/VolGroup00/homeVol",
+      "sudo lvextend -L+100G /dev/VolGroup00/logVol",
+      "sudo resize2fs /dev/VolGroup00/rootVol",
+      "sudo resize2fs /dev/VolGroup00/varVol",
+      "sudo resize2fs /dev/VolGroup00/homeVol"
+    ]
+  }
+}
+
 resource "null_resource" "preflight" {
   
   connection {
@@ -89,25 +137,18 @@ resource "null_resource" "preflight" {
     inline = [
       "chmod 600 ~/.ssh/id_rsa",
       "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ~/.ssh/id_rsa ${local.user_at_system}:~/.ssh/id_rsa",
-      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /home/centos/bootstrap ${local.user_at_system}:/home/centos/bootstrap",
-      "curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip",
-      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null awscliv2.zip ${local.user_at_system}:.",
+      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r /home/${var.image_username}/bootstrap ${local.user_at_system}:/home/${var.image_username}/bootstrap",
       "curl -OL https://downloads.mesosphere.io/konvoy/${var.dkp_archive}",
-      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/centos/${var.dkp_archive} ${local.user_at_system}:/home/centos/${var.dkp_archive}",
+      "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/${var.image_username}/${var.dkp_archive} ${local.user_at_system}:/home/${var.image_username}/${var.dkp_archive}",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} chmod 600 ~/.ssh/id_rsa",
-      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo yum install ./bootstrap/*.rpm -y",
+      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo yum install ./bootstrap/*.rpm -y --nogpgcheck",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} tar -xvf ${var.dkp_archive}",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo systemctl enable --now docker",
-      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo usermod -aG docker centos",
-      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} unzip awscliv2.zip",
-      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo aws/install"
+      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo usermod -aG docker ${var.image_username}",
     ]
   }
 }
 
-#"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} docker load < konvoy_v1.6.0-rc.2/images/docker.io_registry\:2.tar",
-#"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} docker run -d -p 5000:5000 --restart=always --name registry registry:2"
-#"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo setenforce 0"
 
 resource "aws_network_interface" "lb" {
   subnet_id = "${"${aws_subnet.private.id}"}"

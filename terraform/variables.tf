@@ -1,12 +1,10 @@
 
 # Profile ID based on AWS account information
 variable "profile_id" {
-    type = string
 }
 
 # AWS Region
 variable "region_id" {
-    type = string
 }
 
 # DKP archive
@@ -30,14 +28,14 @@ variable "image_id" {
     description = "Amazon AWS AMI"
     # Default ami is based on v1.8.2
     # default     = "ami-00e87074e52e6c9f9"
-    default     = "ami-00e87074e52e6c9f9"
+    default     = "ami-005f0a3901058a235"
 }
 
 # ec2.tf
 variable "image_username" {
     description = "Amazon AWS AMI username"
     # Default ami is based on v1.8.2
-    default     = "centos"
+    default     = "maintuser"
 }
 
 # ec2.tf
