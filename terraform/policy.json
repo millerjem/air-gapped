@@ -93,7 +93,7 @@
                 "ec2:DeleteSecurityGroup",
                 "sts:GetCallerIdentity",
                 "s3:*",
-                "elb:DeregisterInstancesFromLoadBalancer"
+                "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
             ],
             "Resource": "*"
         }
