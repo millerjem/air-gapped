@@ -124,3 +124,8 @@ output "private_ip" {
   value       = "${aws_instance.bootstrap_instance.*.private_ip}"
 }
 
+output "instance_profile" {
+  description = "Assume instance profile"
+  value       = "${aws_iam_instance_profile.ag_profile.arn}"
+}
+

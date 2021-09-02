@@ -91,13 +91,10 @@ resource "null_resource" "preflight_volumes_bootstrap" {
     inline = [
       "sudo growpart /dev/nvme0n1 2",
       "sudo pvresize /dev/nvme0n1p2",
-      "sudo lvextend -L+10G /dev/VolGroup00/rootVol",
-      "sudo lvextend -L+500G /dev/VolGroup00/varVol",
-      "sudo lvextend -L+200G /dev/VolGroup00/homeVol",
-      "sudo lvextend -L+100G /dev/VolGroup00/logVol",
-      "sudo resize2fs /dev/VolGroup00/rootVol",
-      "sudo resize2fs /dev/VolGroup00/varVol",
-      "sudo resize2fs /dev/VolGroup00/homeVol"
+      "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
+      "sudo lvextend -L+500G -r /dev/VolGroup00/varVol",
+      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol",
+      "sudo lvextend -L+100G -r /dev/VolGroup00/logVol"
     ]
   }
 }
@@ -114,13 +111,10 @@ resource "null_resource" "preflight_volumes_bastion" {
     inline = [
       "sudo growpart /dev/nvme0n1 2",
       "sudo pvresize /dev/nvme0n1p2",
-      "sudo lvextend -L+10G /dev/VolGroup00/rootVol",
-      "sudo lvextend -L+500G /dev/VolGroup00/varVol",
-      "sudo lvextend -L+200G /dev/VolGroup00/homeVol",
-      "sudo lvextend -L+100G /dev/VolGroup00/logVol",
-      "sudo resize2fs /dev/VolGroup00/rootVol",
-      "sudo resize2fs /dev/VolGroup00/varVol",
-      "sudo resize2fs /dev/VolGroup00/homeVol"
+      "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
+      "sudo lvextend -L+500G -r /dev/VolGroup00/varVol",
+      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol",
+      "sudo lvextend -L+100G -r /dev/VolGroup00/logVol"
     ]
   }
 }
