@@ -93,8 +93,8 @@ resource "null_resource" "preflight_volumes_bootstrap" {
       "sudo pvresize /dev/nvme0n1p2",
       "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
       "sudo lvextend -L+500G -r /dev/VolGroup00/varVol",
-      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol",
-      "sudo lvextend -L+100G -r /dev/VolGroup00/logVol"
+      "sudo lvextend -L+100G -r /dev/VolGroup00/logVol",
+      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol"
     ]
   }
 }
@@ -113,8 +113,8 @@ resource "null_resource" "preflight_volumes_bastion" {
       "sudo pvresize /dev/nvme0n1p2",
       "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
       "sudo lvextend -L+500G -r /dev/VolGroup00/varVol",
-      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol",
       "sudo lvextend -L+100G -r /dev/VolGroup00/logVol"
+      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol"
     ]
   }
 }
@@ -141,7 +141,7 @@ resource "null_resource" "preflight" {
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo yum install ./bootstrap/*.rpm -y --nogpgcheck",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} tar -xvf ${var.dkp_archive}",
       "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo systemctl enable --now docker",
-      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo usermod -aG docker ${var.image_username}",
+      "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${local.user_at_system} sudo usermod -aG docker ${var.image_username}"
     ]
   }
 }
