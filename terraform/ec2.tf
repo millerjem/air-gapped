@@ -113,7 +113,7 @@ resource "null_resource" "preflight_volumes_bastion" {
       "sudo pvresize /dev/nvme0n1p2",
       "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
       "sudo lvextend -L+500G -r /dev/VolGroup00/varVol",
-      "sudo lvextend -L+100G -r /dev/VolGroup00/logVol"
+      "sudo lvextend -L+100G -r /dev/VolGroup00/logVol",
       "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/homeVol"
     ]
   }
