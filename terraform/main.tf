@@ -67,7 +67,10 @@ resource "aws_subnet" "private" {
   availability_zone = "${local.az}"
 
   tags = {
-    Name = "airgap-private-subnet"
+    Name = "airgap-private-subnet",
+    kubernetes.io/cluster = "govcloud",
+    kubernetes.io/cluster/CLUSTER_NAME = "owned",
+    kubernetes.io/role/internal-elb = "1"
   }
 }
 
@@ -129,3 +132,12 @@ output "instance_profile" {
   value       = "${aws_iam_instance_profile.ag_profile.arn}"
 }
 
+output "vpc_id" {
+  description = "AWS VPC ID"
+  value       = "${aws_vpc.airgap_vpc.id}"
+}
+
+output "subnet_private_id" {
+  description = "AWS Private Subnet ID"
+  value       = "${aws_subnet.private.id}"
+}
