@@ -162,7 +162,7 @@ resource "aws_network_interface" "lb" {
 # EC2 Instance without Internet Access
 resource "aws_instance" "cp_instance" {
   ami                         = "${var.image_id}"
-  count                       = 3 
+  count                       = 1 
   instance_type               = "${var.ec2_instance_type}"
   key_name                    = "${aws_key_pair.airgap_keypair.key_name}"
   #vpc_security_group_ids      = [ "${aws_security_group.allow_all.id}" ]
@@ -227,12 +227,12 @@ resource "aws_instance" "worker_instance" {
     }
   ]
 
-  network_interface {
-    #associate_public_ip_address = false
-    device_index = 0
-    network_interface_id = "${"aws_network_interface.internal-lb.id"}"
+#  network_interface {
+#    #associate_public_ip_address = false
+#    device_index = 0
+#    network_interface_id = "${"aws_network_interface.internal-lb.id"}"
     #network_interface = "${format("aws_network_interface.internal-lb-%d.id", count.index)}"
-  }
+#  }
 
   ebs_block_device {
     device_name = "/dev/sdb"
