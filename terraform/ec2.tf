@@ -188,6 +188,23 @@ resource "aws_instance" "cp_instance" {
     owner      = "${var.owner}",
     expiration = "${var.expiration}"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo growpart /dev/nvme0n1 2",
+      "sudo pvresize /dev/nvme0n1p2",
+      "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
+      "sudo lvextend -L+20G -r /dev/VolGroup00/homeVol",
+      "sudo lvextend -L+10G -r /dev/VolGroup00/logVol",
+      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/varVol"
+    ]
+    connection {
+      user = "${var.image_username}"
+      type = "ssh"
+      bastion_host = "${aws_instance.staging_instance.public_ip}"
+      bastion_user = "${var.image_username}"
+    }
+  }
 }
 
 resource "aws_network_interface" "internal-lb" {
@@ -284,6 +301,12 @@ resource "aws_instance" "worker_instance" {
       "echo '/dev/nvme3n1 /mnt/disks/data-vol-03 xfs defaults 0 2' | sudo tee -a /etc/fstab > /dev/null",
       "echo '/dev/nvme4n1 /mnt/disks/data-vol-04 xfs defaults 0 2' | sudo tee -a /etc/fstab > /dev/null",    
       "sudo mount -a",
+      "sudo growpart /dev/nvme0n1 2",
+      "sudo pvresize /dev/nvme0n1p2",
+      "sudo lvextend -L+10G -r /dev/VolGroup00/rootVol",
+      "sudo lvextend -L+20G -r /dev/VolGroup00/homeVol",
+      "sudo lvextend -L+10G -r /dev/VolGroup00/logVol",
+      "sudo lvextend --extents +100%FREE -r /dev/VolGroup00/varVol"
     ]
     connection {
       user = "${var.image_username}"
