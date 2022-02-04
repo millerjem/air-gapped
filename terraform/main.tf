@@ -27,7 +27,7 @@ resource "aws_subnet" "public" {
   availability_zone = "${local.az}"
 
   tags = {
-    Name = "airgap-${username}-public-subnet"
+    Name = "${var.cluster_id}-public-subnet"
   }
 }
 
@@ -36,7 +36,7 @@ resource "aws_internet_gateway" "airgap_vpc_igw" {
   vpc_id = "${aws_vpc.airgap_vpc.id}"
 
   tags = {
-    Name = "airgap-${username}-igw"
+    Name = "${var.cluster_id}-igw"
   }
 }
 
@@ -50,7 +50,7 @@ resource "aws_route_table" "airgap_vpc_region_public" {
     }
 
     tags = {
-        Name = "airgap-${username}-public-rt"
+        Name = "${var.cluster_id}-public-rt"
     }
 }
 
@@ -67,7 +67,7 @@ resource "aws_subnet" "private" {
   availability_zone = "${local.az}"
 
   tags = {
-    Name = "airgap-${username}-private-subnet"
+    Name = "${var.cluster_id}-private-subnet"
     #,
     #kubernetes.io/cluster = "govcloud",
     #kubernetes.io/cluster/CLUSTER_NAME = "owned",
@@ -82,7 +82,7 @@ resource "aws_subnet" "private" {
 #  availability_zone = "${local.az}"
 
 #  tags = {
-#    Name = "airgap-${username}-private-lb-subnet"
+#    Name = "${var.cluster_id}-private-lb-subnet"
 #  }
 #}
 
@@ -91,7 +91,7 @@ resource "aws_route_table" "airgap_vpc_region_private" {
     vpc_id = "${aws_vpc.airgap_vpc.id}"
 
     tags = {
-        Name = "airgap-${username}-private-rt"
+        Name = "${var.cluster_id}-private-rt"
     }
 }
 

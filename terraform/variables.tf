@@ -8,9 +8,6 @@ variable "region_id" {}
 # DKP archive
 variable "dkp_archive" {}
 
-variable "username" {}
-variable "owner_tag" {}
-
 # Cluster UUID
 resource "random_string" "random" {
     length  = 4
