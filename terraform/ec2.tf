@@ -162,7 +162,7 @@ resource "aws_network_interface" "lb" {
 # EC2 Instance without Internet Access
 resource "aws_instance" "cp_instance" {
   ami                         = "${var.image_id}"
-  count                       = 0 
+  count                       = 3 
   instance_type               = "${var.ec2_instance_type}"
   key_name                    = "${aws_key_pair.airgap_keypair.key_name}"
   #vpc_security_group_ids      = [ "${aws_security_group.allow_all.id}" ]
@@ -212,7 +212,7 @@ resource "aws_eip_association" "eip_assoc" {
 
 resource "aws_instance" "worker_instance" {
   ami                         = "${var.image_id}"
-  count                       = 0
+  count                       = 4
   instance_type               = "${var.ec2_instance_type}"
   key_name                    = "${aws_key_pair.airgap_keypair.key_name}"
   # vpc_security_group_ids      = [ "${aws_security_group.allow_all.id}" ]
