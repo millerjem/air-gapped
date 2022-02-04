@@ -20,7 +20,7 @@ resource "random_string" "random" {
 
 # Cluster ID
 variable "cluster_id" {
-    default     = "airgap"
+    default     = "airgap-${username}"
 }
 
 # ec2.tf
@@ -53,7 +53,7 @@ variable "ssh_key_name" {
 # Cluster owner
 variable "owner" {
     description = "Owner of the cluster"
-    default      = "john.miller@d2iq.com"
+    default      = "${owner-email}"
 }
 
 # Cluster expiration

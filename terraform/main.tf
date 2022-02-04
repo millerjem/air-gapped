@@ -11,7 +11,7 @@ provider "aws" {
 }
 
 # Vpc
-resource "aws_vpc" "airgap_vpc" {
+resource "aws_vpc" "airgap_${username}_vpc" {
   cidr_block = "10.0.0.0/16"
   enable_dns_hostnames = true
 
@@ -27,21 +27,21 @@ resource "aws_subnet" "public" {
   availability_zone = "${local.az}"
 
   tags = {
-    Name = "airgap-public-subnet"
+    Name = "airgap-${username}-public-subnet"
   }
 }
 
 # Igw
-resource "aws_internet_gateway" "airgap_vpc_igw" {
+resource "aws_internet_gateway" "airgap_${username}_vpc_igw" {
   vpc_id = "${aws_vpc.airgap_vpc.id}"
 
   tags = {
-    Name = "airgap-igw"
+    Name = "airgap-${username}-igw"
   }
 }
 
 # Public route table
-resource "aws_route_table" "airgap_vpc_region_public" {
+resource "aws_route_table" "airgap_${username}_vpc_region_public" {
     vpc_id = "${aws_vpc.airgap_vpc.id}"
 
     route {
@@ -50,12 +50,12 @@ resource "aws_route_table" "airgap_vpc_region_public" {
     }
 
     tags = {
-        Name = "airgap-public-rt"
+        Name = "airgap-${username}-public-rt"
     }
 }
 
 # Public route table associations
-resource "aws_route_table_association" "airgap_vpc_region_public" {
+resource "aws_route_table_association" "airgap_${username}_vpc_region_public" {
     subnet_id = "${aws_subnet.public.id}"
     route_table_id = "${aws_route_table.airgap_vpc_region_public.id}"
 }
@@ -67,10 +67,11 @@ resource "aws_subnet" "private" {
   availability_zone = "${local.az}"
 
   tags = {
-    Name = "airgap-private-subnet",
-    kubernetes.io/cluster = "govcloud",
-    kubernetes.io/cluster/CLUSTER_NAME = "owned",
-    kubernetes.io/role/internal-elb = "1"
+    Name = "airgap-${username}-private-subnet"
+    #,
+    #kubernetes.io/cluster = "govcloud",
+    #kubernetes.io/cluster/CLUSTER_NAME = "owned",
+    #kubernetes.io/role/internal-elb = "1"
   }
 }
 
@@ -81,27 +82,27 @@ resource "aws_subnet" "private" {
 #  availability_zone = "${local.az}"
 
 #  tags = {
-#    Name = "airgap-private-lb-subnet"
+#    Name = "airgap-${username}-private-lb-subnet"
 #  }
 #}
 
 # Private routing table
-resource "aws_route_table" "airgap_vpc_region_private" {
+resource "aws_route_table" "airgap_${username}_vpc_region_private" {
     vpc_id = "${aws_vpc.airgap_vpc.id}"
 
     tags = {
-        Name = "airgap-private-rt"
+        Name = "airgap-${username}-private-rt"
     }
 }
 
 # Private routing table association
-resource "aws_route_table_association" "airgap_vpc_region_private" {
+resource "aws_route_table_association" "airgap_${username}_vpc_region_private" {
     subnet_id = "${aws_subnet.private.id}"
     route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
 }
 
 # Private routing table association
-#resource "aws_route_table_association" "airgap_vpc_region_private-lb" {
+#resource "aws_route_table_association" "airgap_${username}_vpc_region_private-lb" {
 #    subnet_id = "${aws_subnet.private-lb.id}"
 #    route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
 #}
