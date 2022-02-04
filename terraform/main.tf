@@ -11,7 +11,7 @@ provider "aws" {
 }
 
 # Vpc
-resource "aws_vpc" "airgap_${username}_vpc" {
+resource "aws_vpc" "airgap_vpc" {
   cidr_block = "10.0.0.0/16"
   enable_dns_hostnames = true
 
@@ -32,7 +32,7 @@ resource "aws_subnet" "public" {
 }
 
 # Igw
-resource "aws_internet_gateway" "airgap_${username}_vpc_igw" {
+resource "aws_internet_gateway" "airgap_vpc_igw" {
   vpc_id = "${aws_vpc.airgap_vpc.id}"
 
   tags = {
@@ -41,7 +41,7 @@ resource "aws_internet_gateway" "airgap_${username}_vpc_igw" {
 }
 
 # Public route table
-resource "aws_route_table" "airgap_${username}_vpc_region_public" {
+resource "aws_route_table" "airgap_vpc_region_public" {
     vpc_id = "${aws_vpc.airgap_vpc.id}"
 
     route {
@@ -55,7 +55,7 @@ resource "aws_route_table" "airgap_${username}_vpc_region_public" {
 }
 
 # Public route table associations
-resource "aws_route_table_association" "airgap_${username}_vpc_region_public" {
+resource "aws_route_table_association" "airgap_vpc_region_public" {
     subnet_id = "${aws_subnet.public.id}"
     route_table_id = "${aws_route_table.airgap_vpc_region_public.id}"
 }
@@ -87,7 +87,7 @@ resource "aws_subnet" "private" {
 #}
 
 # Private routing table
-resource "aws_route_table" "airgap_${username}_vpc_region_private" {
+resource "aws_route_table" "airgap_vpc_region_private" {
     vpc_id = "${aws_vpc.airgap_vpc.id}"
 
     tags = {
@@ -96,13 +96,13 @@ resource "aws_route_table" "airgap_${username}_vpc_region_private" {
 }
 
 # Private routing table association
-resource "aws_route_table_association" "airgap_${username}_vpc_region_private" {
+resource "aws_route_table_association" "airgap_vpc_region_private" {
     subnet_id = "${aws_subnet.private.id}"
     route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
 }
 
 # Private routing table association
-#resource "aws_route_table_association" "airgap_${username}_vpc_region_private-lb" {
+#resource "aws_route_table_association" "airgap_vpc_region_private-lb" {
 #    subnet_id = "${aws_subnet.private-lb.id}"
 #    route_table_id = "${aws_route_table.airgap_vpc_region_private.id}"
 #}
