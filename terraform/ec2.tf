@@ -215,9 +215,9 @@ resource "aws_instance" "worker_instance" {
   count                       = 4
   instance_type               = "${var.ec2_instance_type}"
   key_name                    = "${aws_key_pair.airgap_keypair.key_name}"
-  # vpc_security_group_ids      = [ "${aws_security_group.allow_all.id}" ]
-  #subnet_id                   = "${aws_subnet.private.id}"
-  #associate_public_ip_address = false
+  vpc_security_group_ids      = [ "${aws_security_group.allow_all.id}" ]
+  subnet_id                   = "${aws_subnet.private.id}"
+  associate_public_ip_address = false
   iam_instance_profile        = "${aws_iam_instance_profile.ag_profile.id}"
 
   root_block_device = [
