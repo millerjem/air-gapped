@@ -1,14 +1,15 @@
 
 # Profile ID based on AWS account information
-variable "profile_id" {
-}
+variable "profile_id" {}
 
 # AWS Region
-variable "region_id" {
-}
+variable "region_id" {}
 
 # DKP archive
 variable "dkp_archive" {}
+
+variable "username" {}
+variable "owner_tag" {}
 
 # Cluster UUID
 resource "random_string" "random" {
@@ -20,7 +21,7 @@ resource "random_string" "random" {
 
 # Cluster ID
 variable "cluster_id" {
-    default     = "airgap-${username}"
+    description = "Cluster identifier in AWS"
 }
 
 # ec2.tf
@@ -53,7 +54,6 @@ variable "ssh_key_name" {
 # Cluster owner
 variable "owner" {
     description = "Owner of the cluster"
-    default      = "${owner-email}"
 }
 
 # Cluster expiration
