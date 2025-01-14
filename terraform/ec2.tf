@@ -74,7 +74,7 @@ resource "aws_instance" "bootstrap_instance" {
 }
 
 locals {
-  "user_at_system" = "${format("%s@%s", var.image_username, aws_instance.bootstrap_instance.private_ip)}"
+  user_at_system = "${format("%s@%s", var.image_username, aws_instance.bootstrap_instance.private_ip)}"
 }
 
 resource "null_resource" "preflight" {
